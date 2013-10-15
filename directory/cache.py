@@ -13,34 +13,44 @@ class AwsDirectoryCache:
 		self.setTree(tree)
 		
 	def setDbName(self, db_name):
+		'''Sets the name of the database to be used by the cache manager.'''
 		if db_name == None or len(db_name.strip()) == 0:
 			raise TypeError("The DB name cannot be None or an empty string")
 		self.db_name = db_name
 	
 	def setPath(self, path):
-		'''Sets the path to the directory to be cached.'''
+		'''Sets the path to the directory whose data is to be cached.'''
+		self.path = None
 		if(path != None and len(path.strip()) > 0):
 			if not os.path.exists(path):
 				raise IOError("The path {0} does not exist on this machine".format(path))
 			else:
 				self.path = path
-		else:
-			self.path = None
 	
 	def setTree(self, tree):
-		pass		
+		'''Sets the tree that will be used to generate the cache data to be stored.'''
+		self.tree = None
+		tree = list(tree) #enforce the list type
+		if tree != None and len(tree) > 0:
+			entry_0 = tree[0]
+			if "path" in entry_0 and "relative_path" in entry_0 and "last_modified_time" in entry_0:
+				self.tree = tree
+			else:
+				raise KeyError("One or more of the keys (path,relative_path,last_modified_time) was not found in your entries")			
 	
-	def getCache(self, path):
+	def getCache(self):
 		'''Gets the cache data for the specified path in the db if it exists else it throws an error.'''
 		shelve_db = shelve.open(self.db_name)
-		if not shelve_db.has_key(path):
-			raise IndexError("The index for key {0} was not found".format(path))
-		cache_data = shelve_db[path]
+		if not shelve_db.has_key(self.path):
+			raise KeyError("The index for key {0} was not found".format(self.path))
+		cache_data = shelve_db[self.path]
 		shelve_db.close()
 		return cache_data
 	
 	def setCache(self):
 		'''Sets the new data for the value of this path in the cache.'''
+		if self.path == None or self.tree == None:
+			raise EnvironmentError("Either or both the path and path tree data are set to None")
 		cache_data = [{"path": entry['path'], "relative_path": entry['relative_path'],
 					   "last_modified_time": entry['last_modified_time']} for entry in self.tree]
 		self.writeCache(cache_data)
@@ -52,3 +62,4 @@ class AwsDirectoryCache:
 		shelve_db = shelve.open(self.db_name) #open the shelve db for the data
 		shelve_db[self.path] = cache_data
 		shelve_db.close()
+		return True
