@@ -10,7 +10,7 @@ import directory.cache
 __version__ = "1.0.0"
 __author__ = "Okeke Emmanuel<emmanix2002@gmail.com>"
 __license__ = ""
-awsuploader_dir = "/path/to/awsuploader"
+awsuploader_dir = "/home/eokeke/Development/workspace-python/awsuploader"
 
 parser = cacher = src_path = user = identity_file = dest = host = None
 
