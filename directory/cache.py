@@ -7,7 +7,7 @@ class AwsDirectoryCache:
 	
 	It maintains a cache containing metadata relavant to files on a per folder basis for directories/files
 	uploaded using the script.'''
-	def __init__(self, path=None, tree=None, db_name="AwsDirectoryCache.db"):
+	def __init__(self, path=None, tree=None, db_name=None):
 		self.setDbName(db_name)
 		self.setPath(path)
 		self.setTree(tree)
@@ -41,7 +41,7 @@ class AwsDirectoryCache:
 	def getCache(self):
 		'''Gets the cache data for the specified path in the db if it exists else it throws an error.'''
 		shelve_db = shelve.open(self.db_name)
-		if not shelve_db.has_key(self.path):
+		if not self.path in shelve_db:
 			raise KeyError("The index for key {0} was not found".format(self.path))
 		cache_data = shelve_db[self.path]
 		shelve_db.close()
