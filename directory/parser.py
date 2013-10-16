@@ -42,7 +42,10 @@ class AwsDirectoryParser:
 		errors = []
 		processed_paths = []
 		for path in path_info:
-			entry = {"path": path, "relative_path":path.replace(self.path,"")}
+			rel_path = path.replace(self.path,"")
+			if rel_path.startswith("/"):
+				rel_path = rel_path[1:]
+			entry = {"path": path, "relative_path":rel_path}
 			try:
 				type = ""
 				if os.path.isfile(path):
