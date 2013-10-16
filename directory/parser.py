@@ -28,12 +28,12 @@ class AwsDirectoryParser:
 		It returns the processed tree as well as a list containing error messages as a tuple.'''
 		errors = []
 		if(self.path != None):
-			path_info = self.parsePath(self.path)
+			path_info, dirs_info = self.parsePath(self.path)
 			if (len(path_info) == 0):
 				#an empty directory
 				raise IOError("The directory {0} is empty...".format(self.path))
 			self.tree, errors = self.processPathInfo(path_info)
-		return (self.tree, errors)
+		return (self.tree, errors, dirs_info)
 	
 	def processPathInfo(self, path_info):
 		'''Gets the required attributes for all paths in the path_info list.
@@ -65,13 +65,17 @@ class AwsDirectoryParser:
 		
 		It recursively parses the specified structure returning all sub paths'''
 		path_info = []
+		dirs_info = []
 		if os.path.isdir(path):
 			sub_paths = glob.glob(os.path.join(path,"*"))
 			dirs = [dirpath for dirpath in sub_paths if os.path.isdir(dirpath)] #list the directories
 			files = [filepath for filepath in sub_paths if os.path.isfile(filepath)] #list the files
+			dirs_info.extend(dirs)
 			path_info.extend(files)
 			for directory in dirs:
-				path_info.extend(self.parsePath(directory)) #do this recursively
+				files, directories = self.parsePath(directory)
+				path_info.extend(files) #do this recursively
+				dirs_info.extend(directories)
 		elif os.path.isfile(path):
 			path_info.extend(path)
-		return path_info	
+		return (path_info, dirs_info)

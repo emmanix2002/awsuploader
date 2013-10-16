@@ -86,14 +86,46 @@ def show_uploads(upload_list):
 	for item in upload_list:
 		print("{1} Bytes --> {0}".format(item['path'], item['size']))
 		
-def create_remote_directories():
+def create_remote_directories(directories):
 	'''Uses SSH to create all the required directories on the remote machine.
 	
 	This has to be done before upload can begin to the machine.'''
-	global src_path
-	myparser = directory.parser.AwsDirectoryParser(src_path)
-	path_info = myparser.parsePath(src_path)
-	print(path_info)
+	global identity_file, user, host, dest, src_path
+	status = True
+	relative_paths = []
+	created_dirs = []
+	for path in directories:
+		rel_path = path.replace(src_path,"")
+		if rel_path.startswith("/"):
+			#remove the preceeding / if it's found
+			rel_path = rel_path[1:]
+		relative_paths.append(rel_path)
+	try:
+		for rel_path in relative_paths:
+			remote_dir_path = os.path.join(dest, rel_path)
+			command = '''ssh -i {0} {1}@{2} mkdir -m 755 -p {3}'''.format(
+				identity_file, user, host, remote_dir_path
+			)
+			print("Command --> {0}".format(command))
+			return_code = subprocess.call(command, shell=True)
+			if return_code == 0:
+				print("Successfully created directory {0}".format(remote_dir_path))
+				created_dirs.append(remote_dir_path)
+			elif return_code < 0:
+				message = "Child was terminated by signal: {0}".format(return_code)
+				raise Exception(message)
+			else:
+				message = "Child returned: {0}".format(return_code)
+				raise Exception(message)
+	except OSError as error:
+		status = False
+		print("Execution failed: ", end="\t")
+		print(error)
+	except Exception as error:
+		status = False
+		print("Process failed: ", end="\t")
+		print(error)
+	return (status, created_dirs)
 
 if __name__ == '__main__':
 	args_parser = argparse.ArgumentParser(description="Runs an upload using the `scp` command and uploads file[s] to an EC2 instance")
@@ -112,7 +144,7 @@ if __name__ == '__main__':
 	if is_config_ok():
 		upload_list = []
 		parser = directory.parser.AwsDirectoryParser(src_path)
-		tree, errors = parser.getTree()
+		tree, errors, directories = parser.getTree()
 		show_errors(errors)
 		cacher = directory.cache.AwsDirectoryCache(src_path, tree, "AwsDirectoryCache.db")
 		try:
@@ -123,30 +155,35 @@ if __name__ == '__main__':
 		except:
 			cache_data = None
 		upload_list = collate_upload_list(cache_data, tree)
-		create_remote_directories()
-		sys.exit(0)
-		show_uploads(upload_list)
-		uploaded_items = 0
-		for item in upload_list:
-			print("Uploading {0}".format(item['path']))
-			try:
-				command = '''scp -i {0} -Cp {1} {2}@{3}:{4}'''.format(
-					identity_file, item['path'], user, host, os.path.join(dest, item['relative_path'])
-				)
-				print("Command --> {0}".format(command))
-				return_code = subprocess.call(command, shell=True)
-				if return_code == 0:
-					print("Upload successful...")
-					++uploaded_items
-				elif return_code < 0:
-					print("Child was terminated by signal: {0}".format(return_code))
-				else:
-					print("Child returned: {0}".format(return_code))
-			except OSError as error:
-				print("Execution failed: ", end="\t")
-				print(error)
-		if uploaded_items == len(upload_list):
-			cacher.setCache()
+		status, created_dirs = create_remote_directories(directories)
+		if status:
+			#since the directory creation process was successful --  we can begin the upload
+			show_uploads(upload_list)
+			uploaded_items = 0
+			for item in upload_list:
+				print("Uploading {0}".format(item['path']))
+				try:
+					command = '''scp -i {0} -Cp {1} {2}@{3}:{4}'''.format(
+						identity_file, item['path'], user, host, os.path.join(dest, item['relative_path'])
+					)
+					print("Command --> {0}".format(command))
+					return_code = subprocess.call(command, shell=True)
+					if return_code == 0:
+						print("Upload successful...")
+						uploaded_items += 1
+					elif return_code < 0:
+						print("Child was terminated by signal: {0}".format(return_code))
+					else:
+						print("Child returned: {0}".format(return_code))
+				except OSError as error:
+					print("Execution failed: ", end="\t")
+					print(error)
+			if uploaded_items == len(upload_list):
+				cacher.setCache()
+		else:
+			#the directory creation process was not successful
+			print("Upload failed because issues were encountered while trying"+
+				 " to create the directory structure on the remote machine")
 	else:
 		print("Some required configuration parameters have not been set...See below")
 		print("*"*50)
