@@ -85,6 +85,15 @@ def show_uploads(upload_list):
 	print("Below is a list of files that will be uploaded to the remote machine {0}@{1}".format(user, host))
 	for item in upload_list:
 		print("{1} Bytes --> {0}".format(item['path'], item['size']))
+		
+def create_remote_directories():
+	'''Uses SSH to create all the required directories on the remote machine.
+	
+	This has to be done before upload can begin to the machine.'''
+	global src_path
+	myparser = directory.parser.AwsDirectoryParser(src_path)
+	path_info = myparser.parsePath(src_path)
+	print(path_info)
 
 if __name__ == '__main__':
 	args_parser = argparse.ArgumentParser(description="Runs an upload using the `scp` command and uploads file[s] to an EC2 instance")
@@ -114,12 +123,14 @@ if __name__ == '__main__':
 		except:
 			cache_data = None
 		upload_list = collate_upload_list(cache_data, tree)
+		create_remote_directories()
+		sys.exit(0)
 		show_uploads(upload_list)
 		uploaded_items = 0
 		for item in upload_list:
 			print("Uploading {0}".format(item['path']))
 			try:
-				command = '''scp -i {0} -rCp {1} {2}@{3}:{4}'''.format(
+				command = '''scp -i {0} -Cp {1} {2}@{3}:{4}'''.format(
 					identity_file, item['path'], user, host, os.path.join(dest, item['relative_path'])
 				)
 				print("Command --> {0}".format(command))
