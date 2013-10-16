@@ -82,9 +82,12 @@ def show_errors(errors):
 def show_uploads(upload_list):
 	'''Shows the files that will be uploaded to the server.'''
 	global user, host
-	print("Below is a list of files that will be uploaded to the remote machine {0}@{1}".format(user, host))
-	for item in upload_list:
-		print("{1} Bytes --> {0}".format(item['path'], item['size']))
+	if len(upload_list) > 0:
+		print("Below is a list of files that will be uploaded to the remote machine {0}@{1}".format(user, host))
+		for item in upload_list:
+			print("{1} Bytes --> {0}".format(item['path'], item['size']))
+	else:
+		print("No items need to be uploaded to machine {0}@{1} since there are no recent changes".format(user, host))
 		
 def create_remote_directories(directories):
 	'''Uses SSH to create all the required directories on the remote machine.
