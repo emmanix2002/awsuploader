@@ -113,10 +113,9 @@ if __name__ == '__main__':
 			cache_data = None
 		except:
 			cache_data = None
-		finally:
-			cacher.setCache()
 		upload_list = collate_upload_list(cache_data, tree)
 		show_uploads(upload_list)
+		uploaded_items = 0
 		for item in upload_list:
 			print("Uploading {0}".format(item['path']))
 			try:
@@ -127,6 +126,7 @@ if __name__ == '__main__':
 				return_code = subprocess.call(command, shell=True)
 				if return_code == 0:
 					print("Upload successful...")
+					++uploaded_items
 				elif return_code < 0:
 					print("Child was terminated by signal: {0}".format(return_code))
 				else:
@@ -134,6 +134,8 @@ if __name__ == '__main__':
 			except OSError as error:
 				print("Execution failed: ", end="\t")
 				print(error)
+		if uploaded_items == len(upload_list):
+			cacher.setCache()
 	else:
 		print("Some required configuration parameters have not been set...See below")
 		print("*"*50)
