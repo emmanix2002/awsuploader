@@ -10,7 +10,7 @@ import directory.cache
 __version__ = "1.0.0"
 __author__ = "Okeke Emmanuel<emmanix2002@gmail.com>"
 __license__ = ""
-awsuploader_dir = "/path/to/awsuploader"
+awsuploader_dir = "/home/eokeke/Development/workspace-python/awsuploader"
 
 parser = cacher = src_path = user = identity_file = dest = host = None
 
@@ -134,7 +134,7 @@ def create_remote_directories(directories):
 
 if __name__ == '__main__':
 	args_parser = argparse.ArgumentParser(description="Runs an upload using the `scp` command and uploads file[s] to an EC2 instance")
-	args_parser.add_argument("-s","--src",help="Specify the source directory|file to be uploaded")
+	args_parser.add_argument("-s","--src",help="Specify the source directory to be uploaded")
 	args_parser.add_argument("-d","--dest",help="Specify the directory on the EC2 instance where the src is to be uploaded to")
 	args_parser.add_argument("-u","--user",help="Specify the username to be used in connecting with the EC2 instance")
 	args_parser.add_argument("-i","--identity_file",help="Specify the path to the .pem file to be used with the instance")
