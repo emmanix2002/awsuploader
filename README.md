@@ -13,7 +13,7 @@ Runs an upload using the `scp` command and uploads file[s] to an EC2 instance
 
 optional arguments:
   -h, --help            show this help message and exit
-  -s SRC, --src SRC     Specify the source directory|file to be uploaded
+  -s SRC, --src SRC     Specify the source directory to be uploaded
   -d DEST, --dest DEST  Specify the directory on the EC2 instance where the
                         src is to be uploaded to
   -u USER, --user USER  Specify the username to be used in connecting with the
