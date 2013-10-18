@@ -10,7 +10,7 @@ import directory.cache
 __version__ = "1.0.0"
 __author__ = "Okeke Emmanuel<emmanix2002@gmail.com>"
 __license__ = ""
-awsuploader_dir = "/home/eokeke/Development/workspace-python/awsuploader"
+awsuploader_dir = "/path/to/awsuploader"
 
 parser = cacher = src_path = user = identity_file = dest = host = None
 
@@ -203,3 +203,4 @@ if __name__ == '__main__':
 		print("Hostname: {0}".format(host))
 		print("Destination: {0}".format(dest))
 		print("*"*50)
+		print("Try adding the --help parameter: e.g. awsuploader --help")
