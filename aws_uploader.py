@@ -153,7 +153,7 @@ if __name__ == '__main__':
 		parser = directory.parser.AwsDirectoryParser(src_path)
 		tree, errors, directories = parser.getTree()
 		show_errors(errors)
-		cacher = directory.cache.AwsDirectoryCache(src_path, tree, "AwsDirectoryCache.db")
+		cacher = directory.cache.AwsDirectoryCache(src_path, tree, cache_key=src_path+"-"+dest)
 		try:
 			cache_data = cacher.getCache()
 		except KeyError as error:
