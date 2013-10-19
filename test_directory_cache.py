@@ -9,7 +9,7 @@ test_db_name = "TestShelveDb.db"
 
 if __name__ == '__main__':
 	parser = directory.parser.AwsDirectoryParser(test_path)
-	tree, errors = parser.getTree()
+	tree, errors, directories = parser.getTree()
 	cacher = directory.cache.AwsDirectoryCache(test_path, tree, test_db_name)
 	if len(sys.argv) > 1:
 		arg = int(sys.argv[1])
