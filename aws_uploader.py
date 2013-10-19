@@ -3,60 +3,59 @@ import argparse
 import os
 import os.path
 import subprocess
-import sys
 import directory.parser
 import directory.cache
 
 __version__ = "1.0.0"
 __author__ = "Okeke Emmanuel<emmanix2002@gmail.com>"
 __license__ = ""
-awsuploader_dir = "/path/to/awsuploader"
+awsuploader_dir = "/home/eokeke/Development/workspace-python/awsuploader"
 
 parser = cacher = src_path = user = identity_file = dest = host = None
 
 def set_identity_file(identity_file_path):
-	'''Sets the path to the identity file on the local machine.'''
+	"""Sets the path to the identity file on the local machine."""
 	global identity_file
 	if identity_file_path != None and len(identity_file_path.strip()) > 0:
 		if os.path.exists(identity_file_path) and os.path.isfile(identity_file_path):
 			identity_file = identity_file_path
-	
+
 def set_path(path):
-	'''Sets the source path on the local machine.'''
+	"""Sets the source path on the local machine."""
 	global src_path
 	if path != None and len(path.strip()) > 0:
 		if os.path.exists(path):
 			src_path = path
 
 def set_dest(path):
-	'''Sets the destination path on the remote instance.'''
+	"""Sets the destination path on the remote instance."""
 	global dest
 	if path != None and len(path.strip()) > 0:
 		dest = path			
 
 def set_user(username):
-	'''Sets the username to use in connecting to the EC2 instance.'''
+	"""Sets the username to use in connecting to the EC2 instance."""
 	global user
 	username = str(username)
 	if username != None and len(username.strip()) > 0:
 		user = username
 
 def set_host(hostname):
-	'''Sets the hostname of the EC2 instance.'''
+	"""Sets the hostname of the EC2 instance."""
 	global host
 	hostname = str(hostname)
 	if hostname != None and len(hostname.strip()) > 0:
 		host = hostname
 
 def is_config_ok():
-	'''Checks that all required variables have appropriate vlues.'''
+	'''Checks that all required variables have appropriate values.'''
 	global src_path, user, identity_file, dest, host
 	if src_path == None or user == None or identity_file == None or dest == None or host == None:
 		return False
 	return True
 
 def collate_upload_list(cache_data, tree):
-	'''Creates a list of files to be uploaded to the server comparing against data in the cache for changes.'''
+	"""Creates a list of files to be uploaded to the server comparing against data in the cache for changes."""
 	upload_list = []
 	if cache_data == None:
 		upload_list = tree
@@ -82,7 +81,7 @@ def show_errors(errors):
 		print("******************************************")
 
 def show_uploads(upload_list):
-	'''Shows the files that will be uploaded to the server.'''
+	"""Shows the files that will be uploaded to the server."""
 	global user, host
 	if len(upload_list) > 0:
 		print("Below is a list of files that will be uploaded to the remote machine {0}@{1}".format(user, host))
@@ -90,11 +89,11 @@ def show_uploads(upload_list):
 			print("{1} Bytes --> {0}".format(item['path'], item['size']))
 	else:
 		print("No items need to be uploaded to machine {0}@{1} since there are no recent changes".format(user, host))
-		
+
 def create_remote_directories(directories):
-	'''Uses SSH to create all the required directories on the remote machine.
-	
-	This has to be done before upload can begin to the machine.'''
+	"""Uses SSH to create all the required directories on the remote machine.
+
+	This has to be done before upload can begin to the machine."""
 	global identity_file, user, host, dest, src_path
 	status = True
 	relative_paths = []
@@ -102,7 +101,7 @@ def create_remote_directories(directories):
 	for path in directories:
 		rel_path = path.replace(src_path,"")
 		if rel_path.startswith("/"):
-			#remove the preceeding / if it's found
+			#remove the preceding / if it's found
 			rel_path = rel_path[1:]
 		relative_paths.append(rel_path)
 	try:
