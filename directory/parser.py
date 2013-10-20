@@ -4,41 +4,42 @@ import glob
 
 class AwsDirectoryParser:
 	'''This class performs the function of taking a path (as a string) and creates a tree structure of it.
-		
+
 		It keeps track of each file as well as some attributes of the file like the modification time and can return
 		the data.
 		The caller can use this data for caching purposes or as desired'''
 	def __init__(self, path=None):
 		self.tree = []
 		self.setPath(path)
-	
+
 	def setPath(self, path):
-		'''Sets the path to the directory to be parsed.'''
-		if(path != None and len(path.strip()) > 0):
+		"""Sets the path to the directory to be parsed."""
+		if path is not None and len(path.strip()) > 0:
 			if not os.path.exists(path):
 				raise IOError("The path {0} does not exist on this machine".format(path))
 			else:
 				self.path = path
 		else:
 			self.path = None
-			
+
 	def getTree(self):
-		'''Returns a tree structure appropriate for the specified path.
-		
-		It returns the processed tree as well as a list containing error messages as a tuple.'''
+		"""Returns a tree structure appropriate for the specified path.
+
+		It returns the processed tree as well as a list containing error messages as a tuple."""
 		errors = []
-		if(self.path != None):
+		dirs_info  = None
+		if self.path is not None:
 			path_info, dirs_info = self.parsePath(self.path)
-			if (len(path_info) == 0):
+			if len(path_info) == 0:
 				#an empty directory
 				raise IOError("The directory {0} is empty...".format(self.path))
 			self.tree, errors = self.processPathInfo(path_info)
 		return (self.tree, errors, dirs_info)
-	
+
 	def processPathInfo(self, path_info):
-		'''Gets the required attributes for all paths in the path_info list.
-		
-		It returns a list of processed paths and errors encountered while processing them as a 2 tuple.'''
+		"""Gets the required attributes for all paths in the path_info list.
+
+		It returns a list of processed paths and errors encountered while processing them as a 2 tuple."""
 		errors = []
 		processed_paths = []
 		for path in path_info:
@@ -59,11 +60,11 @@ class AwsDirectoryParser:
 			except OSError as exc:
 				errors.append("Error on path {0}".format(path))
 		return (processed_paths, errors)
-		
+
 	def parsePath(self, path):
-		'''Returns a structure containing all files and directories within the specified path.
-		
-		It recursively parses the specified structure returning all sub paths'''
+		"""Returns a structure containing all files and directories within the specified path.
+
+		It recursively parses the specified structure returning all sub paths"""
 		path_info = []
 		dirs_info = []
 		if os.path.isdir(path):

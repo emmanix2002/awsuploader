@@ -183,7 +183,7 @@ if __name__ == '__main__':
 						else:
 							print("Child returned: {0}".format(return_code))
 					except OSError as error:
-						print("Execution failed: ", end="\t")
+						print("Execution failed: ")
 						print(error)
 				if uploaded_items == len(upload_list):
 					cacher.setCache()
