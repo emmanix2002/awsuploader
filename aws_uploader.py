@@ -16,41 +16,41 @@ parser = cacher = src_path = user = identity_file = dest = host = None
 def set_identity_file(identity_file_path):
 	"""Sets the path to the identity file on the local machine."""
 	global identity_file
-	if identity_file_path != None and len(identity_file_path.strip()) > 0:
+	if identity_file_path is not None and len(identity_file_path.strip()) > 0:
 		if os.path.exists(identity_file_path) and os.path.isfile(identity_file_path):
 			identity_file = identity_file_path
 
 def set_path(path):
 	"""Sets the source path on the local machine."""
 	global src_path
-	if path != None and len(path.strip()) > 0:
+	if path is not None and len(path.strip()) > 0:
 		if os.path.exists(path):
 			src_path = path
 
 def set_dest(path):
 	"""Sets the destination path on the remote instance."""
 	global dest
-	if path != None and len(path.strip()) > 0:
+	if path is not None and len(path.strip()) > 0:
 		dest = path			
 
 def set_user(username):
 	"""Sets the username to use in connecting to the EC2 instance."""
 	global user
 	username = str(username)
-	if username != None and len(username.strip()) > 0:
+	if username is not None and len(username.strip()) > 0:
 		user = username
 
 def set_host(hostname):
 	"""Sets the hostname of the EC2 instance."""
 	global host
 	hostname = str(hostname)
-	if hostname != None and len(hostname.strip()) > 0:
+	if hostname is not None and len(hostname.strip()) > 0:
 		host = hostname
 
 def is_config_ok():
-	'''Checks that all required variables have appropriate values.'''
+	"""Checks that all required variables have appropriate value."""
 	global src_path, user, identity_file, dest, host
-	if src_path == None or user == None or identity_file == None or dest == None or host == None:
+	if src_path is None or user is None or identity_file is None or dest is None or host is None:
 		return False
 	return True
 
