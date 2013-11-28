@@ -57,7 +57,8 @@ def is_config_ok():
 def collate_upload_list(cache_data, tree):
     """Creates a list of files to be uploaded to the server comparing against data in the cache for changes."""
     upload_list = []
-    if cache_data == None:
+    cached_items = []
+    if cache_data is None:
         upload_list = tree
     else:
         for item in tree:
@@ -67,11 +68,14 @@ def collate_upload_list(cache_data, tree):
                     is_item_found = True
                     if entry['last_modified_time'] < item['last_modified_time']:
                         upload_list.append(item)
+                    else:
+                        #remains the same
+                        cached_items.append(item)
                     break
             if not is_item_found:
                 #the item was not in the list -- a new file
                 upload_list.append(item)
-    return upload_list
+    return upload_list, cached_items
 
 def show_errors(errors):
     if len(errors):
@@ -160,14 +164,13 @@ if __name__ == '__main__':
             cache_data = None
         except:
             cache_data = None
-        upload_list = collate_upload_list(cache_data, tree)
+        upload_list, cache_items = collate_upload_list(cache_data, tree)
         show_uploads(upload_list)
         if len(upload_list) > 0:
             status, created_dirs = create_remote_directories(directories)
             if status:
                 #since the directory creation process was successful --  we can begin the upload
                 uploaded_items = 0
-                cache_items = []
                 for item in upload_list:
                     print("Uploading {0}".format(item['path']))
                     try:
