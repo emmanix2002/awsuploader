@@ -23,3 +23,6 @@ optional arguments:
                         instance
   --host HOST           Specify the public IP address to the EC2 instance
 ```
+
+### Notes    
+When specifying paths (For example: to the ```identity_file```) try to avoid using **relative paths**.     
