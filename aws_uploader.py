@@ -2,6 +2,7 @@
 import argparse
 import os
 import os.path
+import pwd
 import subprocess
 import directory.parser
 import directory.cache
@@ -167,6 +168,7 @@ if __name__ == '__main__':
 			if status:
 				#since the directory creation process was successful --  we can begin the upload				
 				uploaded_items = 0
+				cache_items = []
 				for item in upload_list:
 					print("Uploading {0}".format(item['path']))
 					try:
@@ -177,6 +179,8 @@ if __name__ == '__main__':
 						return_code = subprocess.call(command, shell=True)
 						if return_code == 0:
 							print("Upload successful...")
+							cache_items.append(item)
+							#add the item to the upload list
 							uploaded_items += 1
 						elif return_code < 0:
 							print("Child was terminated by signal: {0}".format(return_code))
@@ -185,8 +189,8 @@ if __name__ == '__main__':
 					except OSError as error:
 						print("Execution failed: ")
 						print(error)
-				if uploaded_items == len(upload_list):
-					cacher.setCache()
+				cacher.setCache(cache_items)
+				#now it'll only cache the successfully uploaded items
 			else:
 				#the directory creation process was not successful
 				print("Upload failed because issues were encountered while trying"+
