@@ -2,7 +2,6 @@
 import argparse
 import os
 import os.path
-import pwd
 import subprocess
 import directory.parser
 import directory.cache
