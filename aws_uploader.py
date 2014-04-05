@@ -6,7 +6,7 @@ import subprocess
 import directory.parser
 import directory.cache
 
-__version__ = "1.0.0"
+__version__ = "1.2.1"
 __author__ = "Okeke Emmanuel<emmanix2002@gmail.com>"
 __license__ = ""
 awsuploader_dir = "/home/eokeke/Development/workspace-python/awsuploader"
@@ -94,6 +94,16 @@ def show_uploads(upload_list):
     else:
         print("No items need to be uploaded to machine {0}@{1} since there are no recent changes".format(user, host))
 
+def collate_remote_directories(upload_list):
+    """Determines the directories to be created on the remote server based on the files to be uploaded."""
+    remote_directories = []
+    for item in upload_list:
+        remote_dir = os.path.dirname(item['path'])
+        if remote_dir not in remote_directories:
+            remote_directories.append(remote_dir)
+    return remote_directories
+
+
 def create_remote_directories(directories):
     """Uses SSH to create all the required directories on the remote machine.
 
@@ -167,7 +177,8 @@ if __name__ == '__main__':
         upload_list, cache_items = collate_upload_list(cache_data, tree)
         show_uploads(upload_list)
         if len(upload_list) > 0:
-            status, created_dirs = create_remote_directories(directories)
+            remote_dirs = collate_remote_directories(upload_list)
+            status, created_dirs = create_remote_directories(remote_dirs)
             if status:
                 #since the directory creation process was successful --  we can begin the upload
                 uploaded_items = 0
