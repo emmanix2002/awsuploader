@@ -69,11 +69,11 @@ def collate_upload_list(cache_data, tree):
                     if entry['last_modified_time'] < item['last_modified_time']:
                         upload_list.append(item)
                     else:
-                        #remains the same
+                        # remains the same
                         cached_items.append(item)
                     break
             if not is_item_found:
-                #the item was not in the list -- a new file
+                # the item was not in the list -- a new file
                 upload_list.append(item)
     return upload_list, cached_items
 
@@ -113,9 +113,12 @@ def create_remote_directories(directories):
     relative_paths = []
     created_dirs = []
     for path in directories:
-        rel_path = path.replace(src_path,"")
+        if path == src_path or path + "/" == src_path:
+            # we don't need to create the source path tree
+            continue
+        rel_path = path.replace(src_path, "")
         if rel_path.startswith("/"):
-            #remove the preceding / if it's found
+            # remove the preceding / if it's found
             rel_path = rel_path[1:]
         relative_paths.append(rel_path)
     try:
@@ -153,7 +156,7 @@ if __name__ == '__main__':
     args_parser.add_argument("-i","--identity_file",help="Specify the path to the .pem file to be used with the instance")
     args_parser.add_argument("--host",help="Specify the public IP address to the EC2 instance")
     args = args_parser.parse_args()
-    #parse the command line arguments
+    # parse the command line arguments
     set_dest(args.dest)
     set_identity_file(args.identity_file)
     set_path(args.src)
@@ -170,17 +173,17 @@ if __name__ == '__main__':
         try:
             cache_data = cacher.getCache()
         except KeyError as error:
-            #no cache exists for the path -- so we just save the cache--and upload all files
+            # no cache exists for the path -- so we just save the cache--and upload all files
             cache_data = None
         except:
             cache_data = None
         upload_list, cache_items = collate_upload_list(cache_data, tree)
         show_uploads(upload_list)
         if len(upload_list) > 0:
-            remote_dirs = collate_remote_directories(upload_list)
-            status, created_dirs = create_remote_directories(remote_dirs)
-            if status:
-                #since the directory creation process was successful --  we can begin the upload
+            # remote_dirs = collate_remote_directories(upload_list)
+            # status, created_dirs = create_remote_directories(remote_dirs)
+            if True:
+                # since the directory creation process was successful --  we can begin the upload
                 uploaded_items = 0
                 for item in upload_list:
                     print("Uploading {0}".format(item['path']))
@@ -199,17 +202,18 @@ if __name__ == '__main__':
                             print("Child was terminated by signal: {0}".format(return_code))
                         else:
                             print("Child returned: {0}".format(return_code))
+
                     except OSError as error:
                         print("Execution failed: ")
                         print(error)
                 cacher.setCache(cache_items)
-                #now it'll only cache the successfully uploaded items
+                # now it'll only cache the successfully uploaded items
             else:
-                #the directory creation process was not successful
+                # the directory creation process was not successful
                 print("Upload failed because issues were encountered while trying"+
                      " to create the directory structure on the remote machine")
         os.chdir(oscurrent_working_directory)
-        #switch it back to the initial working directory
+        # switch it back to the initial working directory
     else:
         print("Some required configuration parameters have not been set...See below")
         print("*"*50)
