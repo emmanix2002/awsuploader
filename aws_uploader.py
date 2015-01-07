@@ -180,9 +180,9 @@ if __name__ == '__main__':
         upload_list, cache_items = collate_upload_list(cache_data, tree)
         show_uploads(upload_list)
         if len(upload_list) > 0:
-            # remote_dirs = collate_remote_directories(upload_list)
-            # status, created_dirs = create_remote_directories(remote_dirs)
-            if True:
+            remote_dirs = collate_remote_directories(upload_list)
+            status, created_dirs = create_remote_directories(remote_dirs)
+            if status:
                 # since the directory creation process was successful --  we can begin the upload
                 uploaded_items = 0
                 for item in upload_list:
