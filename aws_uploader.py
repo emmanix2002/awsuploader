@@ -169,7 +169,7 @@ if __name__ == '__main__':
         parser = directory.parser.AwsDirectoryParser(src_path)
         tree, errors, directories = parser.getTree()
         show_errors(errors)
-        cacher = directory.cache.AwsDirectoryCache(src_path, tree, cache_key=src_path+"-"+dest)
+        cacher = directory.cache.AwsDirectoryCache(src_path, tree, cache_key=src_path + "-" + dest)
         try:
             cache_data = cacher.getCache()
         except KeyError as error:
@@ -188,15 +188,30 @@ if __name__ == '__main__':
                 for item in upload_list:
                     print("Uploading {0}".format(item['path']))
                     try:
-                        command = '''scp -i {0} -Cp {1} {2}@{3}:{4}'''.format(
-                            identity_file, item['path'], user, host, os.path.join(dest, item['relative_path'])
-                        )
+                        command = ''
+                        # the command we'll run through the shell
+                        remote_filename = ''
+                        if ' ' in item['relative_path']:
+                            # a filename with spaces, or other special characters
+                            command = """scp -i {0} -Cp {1} '{2}@{3}:"{4}"'""".format(
+                                identity_file, item['path'], user, host, os.path.join(dest, item['relative_path'])
+                            )
+                        else:
+                            # no space in the name
+                            command = '''scp -i {0} -Cp {1} {2}@{3}:{4}'''.format(
+                                identity_file, item['path'], user, host, os.path.join(dest, item['relative_path'])
+                            )
+                        # let's proceed
                         print("Command --> {0}".format(command))
+                        if command == '':
+                            # there's no need to execute an empty command
+                            continue
                         return_code = subprocess.call(command, shell=True)
+                        # pass the command through the shell
                         if return_code == 0:
                             print("Upload successful...")
                             cache_items.append(item)
-                            #add the item to the upload list
+                            # add the item to the upload list
                             uploaded_items += 1
                         elif return_code < 0:
                             print("Child was terminated by signal: {0}".format(return_code))
@@ -210,7 +225,7 @@ if __name__ == '__main__':
                 # now it'll only cache the successfully uploaded items
             else:
                 # the directory creation process was not successful
-                print("Upload failed because issues were encountered while trying"+
+                print("Upload failed because issues were encountered while trying" +
                      " to create the directory structure on the remote machine")
         os.chdir(oscurrent_working_directory)
         # switch it back to the initial working directory
