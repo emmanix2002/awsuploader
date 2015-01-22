@@ -190,7 +190,6 @@ if __name__ == '__main__':
                     try:
                         command = ''
                         # the command we'll run through the shell
-                        remote_filename = ''
                         if ' ' in item['relative_path']:
                             # a filename with spaces, or other special characters
                             command = """scp -i {0} -Cp {1} '{2}@{3}:"{4}"'""".format(
