@@ -6,10 +6,11 @@ import subprocess
 import directory.parser
 import directory.cache
 
-__version__ = "1.2.1"
-__author__ = "Okeke Emmanuel<emmanix2002@gmail.com>"
+__version__ = "1.3.1"
+__author__ = "Okeke Emmanuel <emmanix2002@gmail.com>"
 __license__ = ""
-awsuploader_dir = "/home/eokeke/Development/workspace-python/awsuploader"
+working_directory = "/path/to/working/directory"
+# this describes the working directory for the script -- the database will be saved to this directory
 
 parser = cacher = src_path = user = identity_file = dest = host = None
 
@@ -164,7 +165,7 @@ if __name__ == '__main__':
     set_user(args.user)
     if is_config_ok():
         oscurrent_working_directory = os.getcwd()
-        os.chdir(awsuploader_dir)
+        os.chdir(working_directory)
         upload_list = []
         parser = directory.parser.AwsDirectoryParser(src_path)
         tree, errors, directories = parser.getTree()
@@ -192,7 +193,7 @@ if __name__ == '__main__':
                         # the command we'll run through the shell
                         if ' ' in item['relative_path']:
                             # a filename with spaces, or other special characters
-                            command = """scp -i {0} -Cp {1} '{2}@{3}:"{4}"'""".format(
+                            command = """scp -i {0} -Cp '{1}' '{2}@{3}:"{4}"'""".format(
                                 identity_file, item['path'], user, host, os.path.join(dest, item['relative_path'])
                             )
                         else:
